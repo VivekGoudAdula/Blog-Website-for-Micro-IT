@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - My Blog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card my-4 shadow-sm">
+        <div class="card-body">
+            <h1 class="card-title">{{ post.title }}</h1>
+            <p class="card-text text-muted small">
+                By {{ post.author_username }} on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }} | Category: {{ post.category_name }}
+            </p>
+            <hr>
+            <div class="card-text post-content">
+                {{ post.content | safe }} {# Render HTML content safely #}
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card my-4 shadow-sm">
+        <div class="card-body">
+            <h3 class="mb-3">Comments ({{ comments|length }})</h3>
+            {% if session.loggedin %}
+                <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}" class="mb-4">
+                    <div class="form-group">
+                        <label for="comment_content">Add a comment:</label>
+                        <textarea class="form-control" id="comment_content" name="comment_content" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                </form>
+            {% else %}
+                <p><a href="{{ url_for('login') }}">Login</a> to add a comment.</p>
+            {% endif %}
+
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="media mb-3 border-bottom pb-2">
+                    <div class="media-body">
+                        <h5 class="mt-0">{{ comment.author_username }} <small class="text-muted">- {{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small></h5>
+                        <p>{{ comment.content }}</p>
+                         {% if session.loggedin and (session.id == comment.user_id or session.role == 'admin') %}
+                            <a href="{{ url_for('delete_comment', comment_id=comment.id, post_id=post.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this comment?');">Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Home - My Blog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Welcome to My Blog!</h1>
+
+    <!-- Category Filter -->
+    <div class="mb-4 category-filter">
+        <h4>Filter by Category:</h4>
+        <a href="{{ url_for('home') }}" class="btn btn-sm btn-outline-primary mr-1">All</a>
+        {% for category in categories %}
+            <a href="{{ url_for('home', category_id=category.id) }}" class="btn btn-sm btn-outline-secondary mr-1">{{ category.name }}</a>
+        {% endfor %}
+    </div>
+
+    {% if posts %}
+        {% for post in posts %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title"><a href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
+                <p class="card-text text-muted small">
+                    By {{ post.author_username }} on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }} | Category: {{post.category_name}}
+                </p>
+                <div class="card-text post-content-summary">
+                    {{ post.content | striptags | truncate(200, True) }} {# Show a summary #}
+                </div>
+                <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-primary mt-2">Read More &rarr;</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No posts yet. Be the first to <a href="{{ url_for('create_post') }}">create one</a>!</p>
+    {% endif %}
+
+</div>
+{% endblock %} 
